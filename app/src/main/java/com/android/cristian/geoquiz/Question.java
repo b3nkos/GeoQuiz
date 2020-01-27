@@ -2,27 +2,27 @@ package com.android.cristian.geoquiz;
 
 public class Question {
 
-    private int mTextResId;
-    private boolean mAnswerTrue;
+    private int textResId;
+    private boolean answerTrue;
 
     public Question(int textResId, boolean answerTrue) {
-        mTextResId = textResId;
-        mAnswerTrue = answerTrue;
+        this.textResId = textResId;
+        this.answerTrue = answerTrue;
     }
 
     public int getTextResId() {
-        return mTextResId;
+        return textResId;
     }
 
     public void setTextResId(int textResId) {
-        mTextResId = textResId;
+        this.textResId = textResId;
     }
 
     public boolean isAnswerTrue() {
-        return mAnswerTrue;
+        return answerTrue;
     }
 
     public void setAnswerTrue(boolean answerTrue) {
-        mAnswerTrue = answerTrue;
+        this.answerTrue = answerTrue;
     }
 }
