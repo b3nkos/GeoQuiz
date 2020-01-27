@@ -13,6 +13,7 @@ public class MainActivity extends AppCompatActivity {
     private Button trueButton;
     private Button falseButton;
     private Button nextButton;
+    private Button previousButton;
     private TextView questionTextView;
     private Question[] questionBank = new Question[]{
             new Question(R.string.question_australia, true),
@@ -52,12 +53,58 @@ public class MainActivity extends AppCompatActivity {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                currentIndex = (currentIndex + 1) % questionBank.length;
-                updateQuestion();
+                enablePreviousButtonIfItsDisabled();
+                showNextQuestion();
             }
         });
 
+        questionTextView = findViewById(R.id.question_text_view);
+        questionTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                enablePreviousButtonIfItsDisabled();
+                showNextQuestion();
+            }
+        });
+
+        previousButton = findViewById(R.id.previous_button);
+        previousButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (currentIndex == 0) {
+                    disablePreviousButtonWhenFirstQuestionIfShowed();
+                } else {
+                    showPreviousQuestion();
+                }
+            }
+        });
+
+        disablePreviousButtonWhenFirstQuestionIfShowed();
         updateQuestion();
+    }
+
+    private void enablePreviousButtonIfItsDisabled() {
+        if (!previousButton.isEnabled()) {
+            previousButton.setEnabled(true);
+        }
+    }
+
+    private void disablePreviousButtonWhenFirstQuestionIfShowed() {
+        if (currentIndex == 0) {
+            previousButton.setEnabled(false);
+        }
+    }
+
+    private void showNextQuestion() {
+        currentIndex = (currentIndex + 1) % questionBank.length;
+        updateQuestion();
+    }
+
+    private void showPreviousQuestion() {
+        if (currentIndex != 0) {
+            currentIndex = (currentIndex - 1) % questionBank.length;
+            updateQuestion();
+        }
     }
 
     private void updateQuestion() {
