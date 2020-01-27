@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -12,8 +13,8 @@ public class MainActivity extends AppCompatActivity {
 
     private Button trueButton;
     private Button falseButton;
-    private Button nextButton;
-    private Button previousButton;
+    private ImageButton nextButton;
+    private ImageButton previousButton;
     private TextView questionTextView;
     private Question[] questionBank = new Question[]{
             new Question(R.string.question_australia, true),
