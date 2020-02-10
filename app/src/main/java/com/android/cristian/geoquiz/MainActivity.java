@@ -1,6 +1,5 @@
 package com.android.cristian.geoquiz;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
@@ -27,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
             new Question(R.string.question_asia, true),
     };
     private int currentIndex;
+    private Boolean[] answers = new Boolean[questionBank.length];
 
 
     @Override
@@ -34,10 +34,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate(Bundle) called");
         setContentView(R.layout.activity_main);
-
-        if (savedInstanceState != null) {
-            currentIndex = savedInstanceState.getInt(KEY_INDEX);
-        }
 
         questionTextView = findViewById(R.id.question_text_view);
 
@@ -61,17 +57,61 @@ public class MainActivity extends AppCompatActivity {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                currentIndex = (currentIndex + 1) % questionBank.length;
-                updateQuestion();
+
+                if (isAllQuestionsAnswered()) {
+                    nextButton.setEnabled(false);
+                    showAllQuestionsAnsweredAlert();
+                } else {
+                    showNextQuestion();
+                }
             }
         });
 
         updateQuestion();
     }
 
+    private boolean isAllQuestionsAnswered() {
+        boolean flag = true;
+
+        for (int i = 0; i < answers.length; i++) {
+            if (answers[i] == null) {
+                flag = false;
+                break;
+            }
+        }
+
+        return flag;
+    }
+
+    private void showAllQuestionsAnsweredAlert() {
+        int correctAwnswers = 0;
+        int incorrectAnswers = 0;
+
+        for (int i = 0; i < answers.length; i++) {
+            if (answers[i]) {
+                correctAwnswers++;
+            } else {
+                incorrectAnswers++;
+            }
+        }
+
+        String message = String.format(
+                getString(R.string.all_questions_answered_message),
+                correctAwnswers,
+                incorrectAnswers);
+
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    private void showNextQuestion() {
+        currentIndex = (currentIndex + 1) % questionBank.length;
+        updateQuestion();
+    }
+
     private void updateQuestion() {
         int question = questionBank[currentIndex].getTextResId();
         questionTextView.setText(question);
+        updateTrueAndFalseButtonsAvailability();
     }
 
     private void checkAnswer(boolean userPressedTrue) {
@@ -80,18 +120,39 @@ public class MainActivity extends AppCompatActivity {
         int messageResId;
 
         if (userPressedTrue == answerIsTrue) {
+            answers[currentIndex] = true;
             messageResId = R.string.correct_toast;
         } else {
+            answers[currentIndex] = false;
             messageResId = R.string.incorrect_toast;
         }
 
+        updateTrueAndFalseButtonsAvailability();
+
         Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show();
+    }
+
+    private void updateTrueAndFalseButtonsAvailability() {
+
+        if (answers[currentIndex] != null) {
+            trueButton.setEnabled(false);
+            falseButton.setEnabled(false);
+        } else {
+            trueButton.setEnabled(true);
+            falseButton.setEnabled(true);
+        }
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         Log.d(TAG, "onStart() called");
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        currentIndex = savedInstanceState.getInt(KEY_INDEX);
     }
 
     @Override
