@@ -1,5 +1,6 @@
 package com.android.cristian.geoquiz;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -16,6 +17,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private static final String KEY_INDEX = "index";
+    private static final String KEY_CHEATER = "cheater";
+    private static final String KEY_CHEATER_INDEX = "cheater_index";
     private boolean isCheater;
     private static final int REQUEST_CODE_CHEAT = 0;
     private Button trueButton;
@@ -32,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
             new Question(R.string.question_asia, true),
     };
     private int currentIndex;
+    private int indexCheatQuestion;
     private Boolean[] answers = new Boolean[questionBank.length];
 
 
@@ -70,6 +74,8 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     showNextQuestion();
                 }
+
+                disableNextButtonIfCheater();
             }
         });
 
@@ -86,6 +92,13 @@ public class MainActivity extends AppCompatActivity {
         updateQuestion();
     }
 
+    private void disableNextButtonIfCheater() {
+        if (isCheater && currentIndex == indexCheatQuestion) {
+            nextButton.setEnabled(false);
+            Log.i(TAG, "Next button disabled");
+        }
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -96,6 +109,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (requestCode == REQUEST_CODE_CHEAT) {
             isCheater = CheatActivity.wasAnswerShown(data);
+            if (isCheater) {
+                indexCheatQuestion = currentIndex;
+            }
         }
     }
 
@@ -134,7 +150,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void showNextQuestion() {
         currentIndex = (currentIndex + 1) % questionBank.length;
-        isCheater = false;
         updateQuestion();
     }
 
@@ -187,6 +202,11 @@ public class MainActivity extends AppCompatActivity {
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         currentIndex = savedInstanceState.getInt(KEY_INDEX);
+        isCheater = savedInstanceState.getBoolean(KEY_CHEATER, false);
+
+        if (isCheater) {
+            indexCheatQuestion = savedInstanceState.getInt(KEY_CHEATER_INDEX);
+        }
     }
 
     @Override
@@ -202,10 +222,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle savedInstanceState) {
+    protected void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         Log.i(TAG, "onSaveInstanceState");
         savedInstanceState.putInt(KEY_INDEX, currentIndex);
+        savedInstanceState.putBoolean(KEY_CHEATER, isCheater);
+
+        if (isCheater) {
+            savedInstanceState.putInt(KEY_CHEATER_INDEX, indexCheatQuestion);
+        }
     }
 
     @Override
