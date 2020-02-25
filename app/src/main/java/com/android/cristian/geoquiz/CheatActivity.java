@@ -3,11 +3,15 @@ package com.android.cristian.geoquiz;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -46,14 +50,34 @@ public class CheatActivity extends AppCompatActivity {
             public void onClick(View v) {
                 setTextToAnswerTextView();
                 setAnswerShownResult(true);
-                disableShowAnswerButton();
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    int cx = showAnswerButton.getWidth() / 2;
+                    int cy = showAnswerButton.getHeight() / 2;
+                    float radius = showAnswerButton.getWidth();
+
+                    Animator animator = ViewAnimationUtils
+                            .createCircularReveal(showAnswerButton, cx, cy, radius, 0);
+                    animator.addListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            showAnswerButton.setVisibility(View.INVISIBLE);
+                        }
+                    });
+
+                    animator.start();
+                } else {
+                    showAnswerButton.setVisibility(View.INVISIBLE);
+                }
+
             }
         });
     }
 
     private void disableShowAnswerButton() {
         if (isAnswerShown) {
-            showAnswerButton.setEnabled(false);
+            showAnswerButton.setVisibility(View.INVISIBLE);
         }
     }
 
