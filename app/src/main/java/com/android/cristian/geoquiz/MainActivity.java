@@ -19,13 +19,16 @@ public class MainActivity extends AppCompatActivity {
     private static final String KEY_INDEX = "index";
     private static final String KEY_CHEATER = "cheater";
     private static final String KEY_CHEATER_INDEX = "cheater_index";
-    private boolean isCheater;
     private static final int REQUEST_CODE_CHEAT = 0;
+    private static final String REMAIN_CHEATER_INDEX = "remain_cheater_index";
+
+    private boolean isCheater;
     private Button trueButton;
     private Button falseButton;
     private Button nextButton;
     private Button cheatButton;
     private TextView questionTextView;
+    private TextView remainCheatTextView;
     private Question[] questionBank = new Question[]{
             new Question(R.string.question_australia, true),
             new Question(R.string.question_oceans, true),
@@ -36,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     };
     private int currentIndex;
     private int indexCheatQuestion;
+    private int remainCheats = 3;
     private Boolean[] answers = new Boolean[questionBank.length];
 
 
@@ -46,6 +50,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         questionTextView = findViewById(R.id.question_text_view);
+        remainCheatTextView = findViewById(R.id.remain_cheat_text_view);
+
+        updateRemainCheatTextView();
 
         trueButton = findViewById(R.id.true_button);
         trueButton.setOnClickListener(new View.OnClickListener() {
@@ -92,6 +99,13 @@ public class MainActivity extends AppCompatActivity {
         updateQuestion();
     }
 
+    private void disableCheatButtonAllCheatersAreAlreadyTaken() {
+        if (remainCheats == 0) {
+            cheatButton.setEnabled(false);
+            Log.i(TAG, "Next button disabled because all cheaters are already taken");
+        }
+    }
+
     private void disableNextButtonIfCheater() {
         if (isCheater && currentIndex == indexCheatQuestion) {
             nextButton.setEnabled(false);
@@ -111,8 +125,15 @@ public class MainActivity extends AppCompatActivity {
             isCheater = CheatActivity.wasAnswerShown(data);
             if (isCheater) {
                 indexCheatQuestion = currentIndex;
+                remainCheats--;
+                updateRemainCheatTextView();
+                disableCheatButtonAllCheatersAreAlreadyTaken();
             }
         }
+    }
+
+    private void updateRemainCheatTextView() {
+        remainCheatTextView.setText(String.format("Remaining cheats: %d", remainCheats));
     }
 
     private boolean isAllQuestionsAnswered() {
@@ -203,6 +224,7 @@ public class MainActivity extends AppCompatActivity {
         super.onRestoreInstanceState(savedInstanceState);
         currentIndex = savedInstanceState.getInt(KEY_INDEX);
         isCheater = savedInstanceState.getBoolean(KEY_CHEATER, false);
+        remainCheats = savedInstanceState.getInt(REMAIN_CHEATER_INDEX, 0);
 
         if (isCheater) {
             indexCheatQuestion = savedInstanceState.getInt(KEY_CHEATER_INDEX);
@@ -227,6 +249,7 @@ public class MainActivity extends AppCompatActivity {
         Log.i(TAG, "onSaveInstanceState");
         savedInstanceState.putInt(KEY_INDEX, currentIndex);
         savedInstanceState.putBoolean(KEY_CHEATER, isCheater);
+        savedInstanceState.putInt(REMAIN_CHEATER_INDEX, remainCheats);
 
         if (isCheater) {
             savedInstanceState.putInt(KEY_CHEATER_INDEX, indexCheatQuestion);

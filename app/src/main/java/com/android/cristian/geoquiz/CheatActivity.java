@@ -27,6 +27,7 @@ public class CheatActivity extends AppCompatActivity {
     private boolean isAnswerShown;
     private TextView answerTextView;
     private Button showAnswerButton;
+    private TextView apiLevelTextView;
 
     public static Intent newIntent(Context packageContext, boolean answerIsTrue) {
         Intent intent = new Intent(packageContext, CheatActivity.class);
@@ -43,6 +44,9 @@ public class CheatActivity extends AppCompatActivity {
         answerIsTrue = getIntent().getBooleanExtra(EXTRA_ANSWER_IS_TRUE, false);
 
         answerTextView = findViewById(R.id.answer_text_view);
+
+        apiLevelTextView = findViewById(R.id.api_level_text_view);
+        apiLevelTextView.setText(String.format("API Level %d", Build.VERSION.SDK_INT));
 
         showAnswerButton = findViewById(R.id.show_answer_button);
         showAnswerButton.setOnClickListener(new View.OnClickListener() {
